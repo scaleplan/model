@@ -1,0 +1,12 @@
+{
+    "name": "scaleplan/model",
+    "description": "Scaleplan model template",
+    "autoload": {
+        "psr-4": {
+            "Scaleplan\\Model\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=7.0"
+    }
+}
