@@ -15,14 +15,14 @@ final class Model
     /**
      * @var array
      */
-    private $attributes = [];
+    private $attributes;
 
     /**
      * TemplateClass constructor.
      *
      * @param array $attributes
      */
-    public function __construct(array $attributes)
+    public function __construct(array $attributes = [])
     {
         $this->attributes = $attributes;
     }
@@ -35,7 +35,7 @@ final class Model
      * @throws OnlyGettersSupportingException
      * @throws PropertyNotFoundException
      */
-    public function __call(string $name)
+    public function __call(\string $name)
     {
         if (strpos($name, 'get') !== 0) {
             throw new OnlyGettersSupportingException();
