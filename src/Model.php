@@ -2,6 +2,7 @@
 
 namespace Scaleplan\Model;
 
+use Scaleplan\Helpers\NameConverter;
 use Scaleplan\Model\Exceptions\OnlyGettersSupportingException;
 use Scaleplan\Model\Exceptions\PropertyNotFoundException;
 
@@ -10,12 +11,12 @@ use Scaleplan\Model\Exceptions\PropertyNotFoundException;
  *
  * @package Scaleplan\Model
  */
-final class Model
+class Model
 {
     /**
      * @var array
      */
-    private $attributes;
+    protected $attributes;
 
     /**
      * TemplateClass constructor.
@@ -29,24 +30,30 @@ final class Model
 
     /**
      * @param string $name
+     * @param array $args
      *
      * @return mixed
      *
      * @throws OnlyGettersSupportingException
      * @throws PropertyNotFoundException
      */
-    public function __call(\string $name)
+    public function __call(string $name, array $args)
     {
         if (strpos($name, 'get') !== 0) {
             throw new OnlyGettersSupportingException();
         }
 
-        $attributeName = lcfirst(str_replace('get', '', $name));
-        if (!array_key_exists($attributeName, $this->attributes)) {
-            throw new PropertyNotFoundException($attributeName);
+        $planeAttributeName = lcfirst(str_replace('get', '', $name));
+        $snakeAttributeName = NameConverter::camelCaseToSnakeCase(str_replace('get', '', $name));
+        if (array_key_exists($planeAttributeName, $this->attributes)) {
+            return $this->attributes[$planeAttributeName];
         }
 
-        return $this->attributes[$attributeName];
+        if (array_key_exists($snakeAttributeName, $this->attributes)) {
+            return $this->attributes[$snakeAttributeName];
+        }
+
+        throw new PropertyNotFoundException($planeAttributeName);
     }
 
     /**

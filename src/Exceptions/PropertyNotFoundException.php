@@ -20,12 +20,12 @@ class PropertyNotFoundException extends ModelException
      * @param \Throwable|null $previous
      */
     public function __construct(
-        \string $propertyName,
-        \string $message = '',
-        \int $code = 0,
+        string $propertyName,
+        string $message = '',
+        int $code = 0,
         ?\Throwable $previous = null
     )
     {
-        parent::__construct(str_replace(':field', $propertyName, $message), $code, $previous);
+        parent::__construct(str_replace(':field', $propertyName, $message ?? static::MESSAGE), $code, $previous);
     }
 }
