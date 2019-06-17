@@ -10,6 +10,7 @@ namespace Scaleplan\Model\Exceptions;
 class PropertyNotFoundException extends ModelException
 {
     public const MESSAGE = 'Property :field not found.';
+    public const CODE = 404;
 
     /**
      * PropertyNotFoundException constructor.
@@ -26,6 +27,10 @@ class PropertyNotFoundException extends ModelException
         ?\Throwable $previous = null
     )
     {
-        parent::__construct(str_replace(':field', $propertyName, $message ?? static::MESSAGE), $code, $previous);
+        parent::__construct(
+            str_replace(':field', $propertyName, $message ?: static::MESSAGE),
+            $code ?: static::CODE,
+            $previous
+        );
     }
 }

@@ -10,6 +10,7 @@ namespace Scaleplan\Model\Exceptions;
 class ModelException extends \Exception
 {
     public const MESSAGE = 'Model error.';
+    public const CODE = 500;
 
     /**
      * ModelException constructor.
@@ -20,6 +21,6 @@ class ModelException extends \Exception
      */
     public function __construct(string $message = '', int $code = 0, \Throwable $previous = null)
     {
-        parent::__construct($message ?: static::MESSAGE, $code, $previous);
+        parent::__construct($message ?: static::MESSAGE, $code ?: static::CODE, $previous);
     }
 }
