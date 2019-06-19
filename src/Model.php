@@ -3,6 +3,7 @@
 namespace Scaleplan\Model;
 
 use Scaleplan\Helpers\NameConverter;
+use Scaleplan\InitTrait\InitTrait;
 use Scaleplan\Model\Exceptions\OnlyGettersSupportingException;
 use Scaleplan\Model\Exceptions\PropertyNotFoundException;
 
@@ -13,6 +14,8 @@ use Scaleplan\Model\Exceptions\PropertyNotFoundException;
  */
 class Model
 {
+    use InitTrait;
+
     /**
      * @var array
      */
@@ -25,7 +28,7 @@ class Model
      */
     public function __construct(array $attributes = [])
     {
-        $this->attributes = $attributes;
+        $this->attributes = $this->initObject($attributes);
     }
 
     /**
@@ -74,5 +77,34 @@ class Model
     public function __unset($name)
     {
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray() : array
+    {
+        $rawArray = (array)$this;
+        $replaces = [static::class => '', '*' => ''];
+        foreach (class_parents(static::class) as $parent) {
+            $replaces[$parent] = '';
+        }
+
+        foreach ($rawArray as $key => $value) {
+            $newKey = trim(strtr($key, $replaces));
+            $rawArray[$newKey] = $value;
+            unset($rawArray[$key]);
+        }
+
+        unset($rawArray['attributes']);
+
+        $array = [];
+        foreach ($rawArray as $property => $value) {
+            $methodName = 'get' . ucfirst($property);
+            $array[NameConverter::camelCaseToSnakeCase($property)]
+                = is_callable([$this, $methodName]) ? $this->$methodName() : $value;
+        }
+
+        return array_merge($this->attributes, $array);
     }
 }
