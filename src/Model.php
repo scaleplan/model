@@ -4,6 +4,7 @@ namespace Scaleplan\Model;
 
 use Scaleplan\Helpers\NameConverter;
 use Scaleplan\InitTrait\InitTrait;
+use Scaleplan\Model\Exceptions\ModelToStringConvertingException;
 use Scaleplan\Model\Exceptions\OnlyGettersSupportingException;
 use Scaleplan\Model\Exceptions\PropertyNotFoundException;
 
@@ -106,5 +107,21 @@ class Model
         }
 
         return array_merge($this->attributes, $array);
+    }
+
+    /**
+     * @return string
+     *
+     * @throws ModelToStringConvertingException
+     */
+    public function __toString() : string
+    {
+        if (!$json = \json_encode($this->toArray(), JSON_OBJECT_AS_ARRAY | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES
+            | JSON_UNESCAPED_UNICODE | JSON_PRESERVE_ZERO_FRACTION)) {
+            throw new ModelToStringConvertingException(static::class);
+        }
+
+        /** @var string $json */
+        return $json;
     }
 }
