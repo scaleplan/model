@@ -3,7 +3,6 @@
 namespace Scaleplan\Model;
 
 use Scaleplan\Helpers\NameConverter;
-use Scaleplan\InitTrait\InitTrait;
 use Scaleplan\Model\Exceptions\ModelToStringConvertingException;
 use Scaleplan\Model\Exceptions\OnlyGettersSupportingException;
 use Scaleplan\Model\Exceptions\PropertyNotFoundException;
@@ -15,12 +14,15 @@ use Scaleplan\Model\Exceptions\PropertyNotFoundException;
  */
 class Model
 {
-    use InitTrait;
-
     /**
      * @var array
      */
-    protected $attributes;
+    protected $attributes = [];
+
+    /**
+     * @var bool
+     */
+    protected $allowMagicSet = false;
 
     /**
      * TemplateClass constructor.
@@ -29,35 +31,79 @@ class Model
      */
     public function __construct(array $attributes = [])
     {
-        $this->attributes = $this->initObject($attributes);
+        foreach ($attributes as $name => &$value) {
+            $propertyName = null;
+            $propertiesArray = $this->toArray();
+
+            if (\array_key_exists($name, $propertiesArray)) {
+                $this->{$name} = $value;
+                continue;
+            }
+
+            if ($propertyName === null
+                && ($prepare = NameConverter::snakeCaseToLowerCamelCase($name))
+                && array_key_exists($prepare, $propertiesArray)) {
+                $this->{$prepare} = $value;
+                continue;
+            }
+
+            $this->attributes[$name] = $value;
+        }
+
+        unset($value);
     }
 
     /**
      * @param string $name
      * @param array $args
      *
-     * @return mixed
+     * @return void|mixed
      *
      * @throws OnlyGettersSupportingException
      * @throws PropertyNotFoundException
      */
     public function __call(string $name, array $args)
     {
-        if (strpos($name, 'get') !== 0) {
-            throw new OnlyGettersSupportingException();
+        $propertyName = strtr($name, ['get' => '', 'set' => '']);
+        $propertiesArray = $this->toArray();
+        $planeAttributeName = lcfirst($propertyName);
+        $snakeAttributeName = NameConverter::camelCaseToSnakeCase($propertyName);
+
+        if (strpos($name, 'get') === 0) {
+            if (\array_key_exists($planeAttributeName, $propertiesArray)) {
+                return $this->{$planeAttributeName};
+            }
+
+            if (array_key_exists($snakeAttributeName, $propertiesArray)) {
+                return $this->{$snakeAttributeName};
+            }
+
+            if (array_key_exists($planeAttributeName, $this->attributes)) {
+                return $this->attributes[$planeAttributeName];
+            }
+
+            if (array_key_exists($snakeAttributeName, $this->attributes)) {
+                return $this->attributes[$snakeAttributeName];
+            }
+
+            throw new PropertyNotFoundException($planeAttributeName);
         }
 
-        $planeAttributeName = lcfirst(str_replace('get', '', $name));
-        $snakeAttributeName = NameConverter::camelCaseToSnakeCase(str_replace('get', '', $name));
-        if (array_key_exists($planeAttributeName, $this->attributes)) {
-            return $this->attributes[$planeAttributeName];
-        }
+        if (strpos($name, 'set') === 0) {
+            if (!$this->allowMagicSet) {
+                throw new OnlyGettersSupportingException();
+            }
 
-        if (array_key_exists($snakeAttributeName, $this->attributes)) {
-            return $this->attributes[$snakeAttributeName];
-        }
+            if (\array_key_exists($planeAttributeName, $propertiesArray)) {
+                $this->{$planeAttributeName} = $args[0];
+            }
 
-        throw new PropertyNotFoundException($planeAttributeName);
+            if (array_key_exists($snakeAttributeName, $propertiesArray)) {
+                $this->{$snakeAttributeName} = $args[0];
+            }
+
+            $this->attributes[$propertyName] = $args[0];
+        }
     }
 
     /**
@@ -101,9 +147,7 @@ class Model
 
         $array = [];
         foreach ($rawArray as $property => $value) {
-            $methodName = 'get' . ucfirst($property);
-            $array[NameConverter::camelCaseToSnakeCase($property)]
-                = is_callable([$this, $methodName]) ? $this->$methodName() : $value;
+            $array[NameConverter::camelCaseToSnakeCase($property)] = $value;
         }
 
         return array_merge($this->attributes, $array);
