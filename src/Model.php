@@ -36,13 +36,23 @@ class Model
             $propertiesArray = $this->toArray();
 
             if (\array_key_exists($name, $propertiesArray)) {
-                $this->{$name} = $value;
-                continue;
+                $propertyName = $name;
             }
 
             if ($propertyName === null
                 && ($prepare = NameConverter::snakeCaseToLowerCamelCase($name))
-                && array_key_exists($prepare, $propertiesArray)) {
+                && array_key_exists($prepare, $propertiesArray)
+            ) {
+                $propertyName = $prepare;
+            }
+
+            if ($propertyName) {
+                $methodName = 'set' . ucfirst($propertyName);
+                if (method_exists($this, $methodName)) {
+                    $this->{$methodName}($value);
+                    continue;
+                }
+
                 $this->{$prepare} = $value;
                 continue;
             }
