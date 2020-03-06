@@ -33,7 +33,7 @@ class Model
     {
         foreach ($attributes as $name => &$value) {
             $propertyName = null;
-            $propertiesArray = $this->toArray();
+            $propertiesArray = $this->getPropertyArray();
 
             if (\array_key_exists($name, $propertiesArray)) {
                 $propertyName = $name;
@@ -53,7 +53,7 @@ class Model
                     continue;
                 }
 
-                $this->{$prepare} = $value;
+                $this->{$propertyName} = $value;
                 continue;
             }
 
@@ -139,7 +139,7 @@ class Model
     /**
      * @return array
      */
-    public function toArray() : array
+    public function getPropertyArray() : array
     {
         $rawArray = (array)$this;
         $replaces = [static::class => '', '*' => ''];
@@ -155,8 +155,16 @@ class Model
 
         unset($rawArray['attributes']);
 
+        return $rawArray;
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray() : array
+    {
         $array = [];
-        foreach ($rawArray as $property => $value) {
+        foreach ($this->getPropertyArray() as $property => $value) {
             $array[NameConverter::camelCaseToSnakeCase($property)] = $value;
         }
 
