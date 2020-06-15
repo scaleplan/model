@@ -9,6 +9,6 @@ namespace Scaleplan\Model\Exceptions;
  */
 class OnlyGettersSupportingException extends ModelException
 {
-    public const MESSAGE = 'Only getters supporting.';
+    public const MESSAGE = 'Поддерживаются только геттеры.';
     public const CODE = 406;
 }

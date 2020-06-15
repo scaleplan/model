@@ -9,7 +9,7 @@ namespace Scaleplan\Model\Exceptions;
  */
 class ModelException extends \Exception
 {
-    public const MESSAGE = 'Model error.';
+    public const MESSAGE = 'Ошибка модели.';
     public const CODE = 500;
 
     /**

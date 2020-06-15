@@ -9,7 +9,7 @@ namespace Scaleplan\Model\Exceptions;
  */
 class PropertyNotFoundException extends ModelException
 {
-    public const MESSAGE = 'Property :field not found.';
+    public const MESSAGE = 'Свойство :field не найдено.';
     public const CODE = 404;
 
     /**

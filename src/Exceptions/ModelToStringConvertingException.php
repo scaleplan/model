@@ -9,7 +9,7 @@ namespace Scaleplan\Model\Exceptions;
  */
 class ModelToStringConvertingException extends ModelException
 {
-    public const MESSAGE = ':class model not converted to string.';
+    public const MESSAGE = 'Модель :class невозможно привести к строке.';
     public const CODE = 500;
 
     /**
