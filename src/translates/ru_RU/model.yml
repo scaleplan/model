@@ -1,0 +1,4 @@
+model-error: Ошибка модели.
+serialize-error: Модель :class невозможно привести к строке.
+only-getter-supported: Поддерживаются только геттеры.
+property-not-found: Свойство :field не найдено.

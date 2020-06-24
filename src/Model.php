@@ -67,10 +67,15 @@ class Model
      * @param string $name
      * @param array $args
      *
-     * @return void|mixed
+     * @return mixed|void
      *
      * @throws OnlyGettersSupportingException
      * @throws PropertyNotFoundException
+     * @throws \ReflectionException
+     * @throws \Scaleplan\DependencyInjection\Exceptions\ContainerTypeNotSupportingException
+     * @throws \Scaleplan\DependencyInjection\Exceptions\DependencyInjectionException
+     * @throws \Scaleplan\DependencyInjection\Exceptions\ParameterMustBeInterfaceNameOrClassNameException
+     * @throws \Scaleplan\DependencyInjection\Exceptions\ReturnTypeMustImplementsInterfaceException
      */
     public function __call(string $name, array $args)
     {
